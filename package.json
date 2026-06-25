@@ -1,0 +1,7 @@
+{
+  "name": "@bjalder26/lti-core",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Brady Alder",
+  "type": "commonjs",
+}
