@@ -4,4 +4,7 @@
   "main": "index.js",
   "author": "Brady Alder",
   "type": "commonjs",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
 }
