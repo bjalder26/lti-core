@@ -58,21 +58,53 @@ async function submitResult({
   type,
   score,
   maxScore,
-  url
+  url,
+  platform = "canvas" // default for now
 }) {
+
   const body = {
     userId,
-    activityProgress: "Completed",
-    gradingProgress: "FullyGraded"
+    timestamp: new Date().toISOString(),
+    activityProgress: "Completed"
   };
 
+  // ✅ Standard LTI behavior
   if (type === "grade") {
     body.scoreGiven = score;
     body.scoreMaximum = maxScore;
+    body.gradingProgress = "FullyGraded";
   }
 
-  if (type === "link") {
-    body.comment = `View submission: ${url}`;
+  if (type === "manual") {
+    body.gradingProgress = "PendingManual";
+    body.comment = `Submission: ${url}`;
+  }
+
+  // ✅ Canvas-specific extensions
+  if (platform === "canvas") {
+
+    if (type === "url_submission") {
+      body.gradingProgress = "PendingManual";
+
+      body["https://canvas.instructure.com/lti/submission"] = {
+        submission_type: "online_url",
+        url: url
+      };
+
+      // fallback
+      body.comment = `Submission (backup): ${url}`;
+    }
+
+    if (type === "lti_submission") {
+      body.gradingProgress = "PendingManual";
+
+      body["https://canvas.instructure.com/lti/submission"] = {
+        submission_type: "basic_lti_launch",
+        submission_data: url
+      };
+
+      body.comment = `Launch submission: ${url}`;
+    }
   }
 
   const endpoint = lineItem.endsWith("/scores")
